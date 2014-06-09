@@ -44,6 +44,7 @@ public class PingPongActivity extends Activity {
 
         /** Initializes the Options singleton. */
         String args[] = new String[] { "PlayPingPongGUI" };
+        //String args[] = new String[] { "PlayPingPongGUI", "-i", "10", "-s", "SEMA", "-t", "1" };
         Options.instance().parseArgs(args);
     }
 
