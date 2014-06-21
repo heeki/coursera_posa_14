@@ -18,22 +18,28 @@ public class SimpleSemaphore {
      * Define a Lock to protect the critical section.
      */
     // TODO - you fill in here
+	private ReentrantLock mLock;
 
     /**
      * Define a Condition that waits while the number of permits is 0.
      */
     // TODO - you fill in here
+	private Condition mCondition;
 
     /**
      * Define a count of the number of available permits.
      */
     // TODO - you fill in here.  Make sure that this data member will
     // ensure its values aren't cached by multiple Threads..
+	private int mPermits;
 
     public SimpleSemaphore(int permits, boolean fair) {
         // TODO - you fill in here to initialize the SimpleSemaphore,
         // making sure to allow both fair and non-fair Semaphore
         // semantics.
+    	mPermits = permits;
+    	mLock = new ReentrantLock(fair);
+    	mCondition = mLock.newCondition();
     }
 
     /**
@@ -42,6 +48,17 @@ public class SimpleSemaphore {
      */
     public void acquire() throws InterruptedException {
         // TODO - you fill in here.
+		mLock.lockInterruptibly();
+    	try {
+    		while (mPermits == 0) {
+    			mCondition.await();
+    		}
+    		mPermits -= 1;
+    	} catch (InterruptedException e) {
+    		e.printStackTrace();
+    	} finally {
+    		mLock.unlock();
+    	}
     }
 
     /**
@@ -50,6 +67,15 @@ public class SimpleSemaphore {
      */
     public void acquireUninterruptibly() {
         // TODO - you fill in here.
+    	mLock.lock();
+    	try {
+    		while (mPermits == 0) {
+    			mCondition.awaitUninterruptibly();
+    		}
+    		mPermits -= 1;
+    	} finally {
+    		mLock.unlock();
+    	}
     }
 
     /**
@@ -57,6 +83,13 @@ public class SimpleSemaphore {
      */
     public void release() {
         // TODO - you fill in here.
+    	mLock.lock();
+    	try {
+    		mPermits += 1;
+    		mCondition.signalAll();
+    	} finally {
+    		mLock.unlock();
+    	}
     }
 
     /**
@@ -65,6 +98,6 @@ public class SimpleSemaphore {
     public int availablePermits() {
         // TODO - you fill in here by changing null to the appropriate
         // return value.
-        return null;
+        return mPermits;
     }
 }
